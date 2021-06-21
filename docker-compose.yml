@@ -1,0 +1,35 @@
+version: '3'
+services:
+    nginx:
+        image: nginx:latest
+        # 端口映射
+        ports:
+            - "8092:80"
+        # 依赖关系 先运行php
+        depends_on:
+            - "php"
+        # 数据卷
+        volumes:
+            # 映射主机./conf.d目录到容器/etc/nginx/conf.d目录
+            - "$PWD/conf.d:/etc/nginx/conf.d"
+            - "$PWD/html:/usr/share/nginx/html"
+        networks:
+            - app_net
+        # 容器名称
+        container_name: "compose-nginx"
+    php:
+        build: ./php_dockerfile
+        # image指定build Dockerfile生成镜像的名称
+        image: php:7.4-nginx
+        ports:
+            - "9000:9000"
+        volumes:
+            - "$PWD/html:/var/www/html"
+        networks:
+            - app_net
+        container_name: "compose-php"
+    
+networks:
+    app_net:
+        driver: bridge
+        
